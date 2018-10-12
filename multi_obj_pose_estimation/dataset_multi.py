@@ -65,14 +65,17 @@ class listDataset(Dataset):
             random_bg_index = random.randint(0, len(self.bg_file_names) - 1)
             bgpath = self.bg_file_names[random_bg_index]
 
-            img, label = load_data_detection(imgpath, self.shape, jitter, hue, saturation, exposure, bgpath)
+            #img, label = load_data_detection(imgpath, self.shape, jitter, hue, saturation, exposure, bgpath)
+            img, label = load_data_detection_backup(imgpath, self.shape, jitter, hue, saturation, exposure, bgpath)
             label = torch.from_numpy(label)
         else:
             img = Image.open(imgpath).convert('RGB')
             if self.shape:
                 img = img.resize(self.shape)
             
-            labpath = imgpath.replace('benchvise', self.objclass).replace('images', 'labels_occlusion').replace('JPEGImages', 'labels_occlusion').replace('.jpg', '.txt').replace('.png','.txt')
+            #labpath = imgpath.replace('benchvise', self.objclass).replace('images', 'labels_occlusion').replace('JPEGImages', 'labels_occlusion').replace('.jpg', '.txt').replace('.png','.txt')
+            labpath = imgpath.replace('benchvise', self.objclass).replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
+
             label = torch.zeros(50*21)
             if os.path.getsize(labpath):
                 ow, oh = img.size

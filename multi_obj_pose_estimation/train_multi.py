@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+import pdb
 os.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import sys
 import time
@@ -138,10 +139,18 @@ def eval(niter, datacfg, cfgfile):
     backupdir     = options['backup']
     name          = options['name']
     prefix        = 'results'
+
     # Read object model information, get 3D bounding box corners
-    mesh          = MeshPly(meshname)
-    vertices      = np.c_[np.array(mesh.vertices), np.ones((len(mesh.vertices), 1))].transpose()
-    corners3D     = get_3D_corners(vertices)
+    # For LINEMOD objects use mech. For car, load corners directly.
+    vertices = None
+    if (name == 'car'):
+        corners = options['corners']
+        corners3D = np.load(corners)
+    else:
+        mesh          = MeshPly(meshname)
+        vertices      = np.c_[np.array(mesh.vertices), np.ones((len(mesh.vertices), 1))].transpose()
+        corners3D     = get_3D_corners(vertices)
+
     # Read intrinsic camera parameters
     internal_calibration = get_camera_intrinsic()        
     
@@ -178,6 +187,7 @@ def eval(niter, datacfg, cfgfile):
     logging("   Number of test samples: %d" % len(test_loader.dataset))
     # Iterate through test examples 
     for batch_idx, (data, target) in enumerate(test_loader):
+        print('Test sample: %d of %d' % (batch_idx, len(test_loader.dataset)))
         t1 = time.time()
         
         # Pass the data to GPU
@@ -246,11 +256,13 @@ def eval(niter, datacfg, cfgfile):
                 # Compute pixel error
                 Rt_gt        = np.concatenate((R_gt, t_gt), axis=1)
                 Rt_pr        = np.concatenate((R_pr, t_pr), axis=1)
-                proj_2d_gt   = compute_projection(vertices, Rt_gt, internal_calibration) 
-                proj_2d_pred = compute_projection(vertices, Rt_pr, internal_calibration) 
+                if (vertices):
+                    proj_2d_gt   = compute_projection(vertices, Rt_gt, internal_calibration) 
+                    proj_2d_pred = compute_projection(vertices, Rt_pr, internal_calibration) 
                 proj_corners_gt = np.transpose(compute_projection(corners3D, Rt_gt, internal_calibration)) 
                 proj_corners_pr = np.transpose(compute_projection(corners3D, Rt_pr, internal_calibration)) 
-                norm         = np.linalg.norm(proj_2d_gt - proj_2d_pred, axis=0)
+                #norm         = np.linalg.norm(proj_2d_gt - proj_2d_pred, axis=0)
+                norm         = np.linalg.norm(proj_corners_gt - proj_corners_pr, axis=0)
                 pixel_dist   = np.mean(norm)
                 errs_2d.append(pixel_dist)
 
@@ -282,9 +294,14 @@ def eval(niter, datacfg, cfgfile):
 def test(niter):
     
     cfgfile = 'cfg/yolo-pose-multi.cfg'
-    datacfg = 'cfg/ape_occlusion.data'
-    logging("Testing ape...")
+    datacfg = 'cfg/car.data'
+    logging("Testing car...")
     eval(niter, datacfg, cfgfile)
+    
+    #datacfg = 'cfg/ape_occlusion.data'
+    #logging("Testing ape...")
+    #eval(niter, datacfg, cfgfile)
+    '''
     datacfg = 'cfg/can_occlusion.data'
     logging("Testing can...")
     eval(niter, datacfg, cfgfile)
@@ -300,6 +317,7 @@ def test(niter):
     datacfg = 'cfg/glue_occlusion.data'
     logging("Testing glue...")
     eval(niter, datacfg, cfgfile)
+    '''
     # datacfg = 'cfg/holepuncher_occlusion.data'
     # logging("Testing holepuncher...")
     # eval(niter, datacfg, cfgfile)
@@ -329,7 +347,7 @@ if __name__ == "__main__":
     decay         = float(net_options['decay'])
     steps         = [float(step) for step in net_options['steps'].split(',')]
     scales        = [float(scale) for scale in net_options['scales'].split(',')]
-    bg_file_names = get_all_files('../VOCdevkit/VOC2012/JPEGImages')
+    bg_file_names = get_all_files('/media/justin_zheng/OS/Data/singleshotpose/VOCdevkit/VOC2012/JPEGImages')
 
     # Train parameters
     max_epochs    = 700 # max_batches*batch_size/nsamples+1
@@ -345,8 +363,8 @@ if __name__ == "__main__":
     nms_thresh    = 0.4
     match_thresh  = 0.5
     iou_thresh    = 0.5
-    im_width      = 640
-    im_height     = 480 
+    im_width      = 1280
+    im_height     = 1024
 
     # Specify which gpus to use
     torch.manual_seed(seed)
@@ -407,7 +425,7 @@ if __name__ == "__main__":
             # TRAIN
             niter = train(epoch)
             # TEST and SAVE
-            if (epoch % 20 == 0) and (epoch is not 0): 
+            if (epoch % 1 == 0) and (epoch is not 0): 
                 test(niter)
                 logging('save training stats to %s/costs.npz' % (backupdir))
                 np.savez(os.path.join(backupdir, "costs.npz"),
@@ -416,9 +434,9 @@ if __name__ == "__main__":
                     testing_iters=testing_iters,
                     testing_accuracies=testing_accuracies,
                     testing_errors_pixel=testing_errors_pixel) 
-                if (np.mean(testing_accuracies[-5:]) > best_acc ):
-                    best_acc = np.mean(testing_accuracies[-5:])
-                    logging('best model so far!')
-                    logging('save weights to %s/model.weights' % (backupdir))
-                    model.module.save_weights('%s/model.weights' % (backupdir))
+                #if (np.mean(testing_accuracies[-5:]) > best_acc ):
+                best_acc = np.mean(testing_accuracies[-5:])
+                logging('best model so far!')
+                logging('save weights to %s/model.weights' % (backupdir))
+                model.module.save_weights('%s/model.weights' % (backupdir))
         shutil.copy2('%s/model.weights' % (backupdir), '%s/model_backup.weights' % (backupdir))

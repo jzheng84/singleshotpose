@@ -1,5 +1,6 @@
-valid  = ../LINEMOD/ape/test_occlusion.txt
-mesh = ../LINEMOD/ape/ape.ply
-backup = backup_multi
+train = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/ape/train.txt
+valid  = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/ape/test_occlusion.txt
+mesh = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/ape/ape.ply
+backup = /media/justin_zheng/OS/Data/singleshotpose/backup_multi
 name = ape
 diam = 0.103

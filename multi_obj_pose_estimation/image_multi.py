@@ -7,14 +7,14 @@ import numpy as np
 
 def load_data_detection_backup(imgpath, shape, jitter, hue, saturation, exposure, bgpath):
     labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-    maskpath = imgpath.replace('JPEGImages', 'mask').replace('/00', '/').replace('.jpg', '.png')
+    #maskpath = imgpath.replace('JPEGImages', 'mask').replace('/00', '/').replace('.jpg', '.png')
 
     ## data augmentation
     img = Image.open(imgpath).convert('RGB')
-    mask = Image.open(maskpath).convert('RGB')
+    #mask = Image.open(maskpath).convert('RGB')
     bg = Image.open(bgpath).convert('RGB')
     
-    img = change_background(img, mask, bg)
+    #img = change_background(img, mask, bg)
     img,flip,dx,dy,sx,sy = data_augmentation(img, shape, jitter, hue, saturation, exposure)
     label = fill_truth_detection(labpath, img.width, img.height, flip, dx, dy, 1./sx, 1./sy)
     return img,label
@@ -22,13 +22,16 @@ def load_data_detection_backup(imgpath, shape, jitter, hue, saturation, exposure
 def get_add_objs(objname):
     # Decide how many additional objects you will augment and what will be the other types of objects
     if objname == 'ape':
-        add_objs = ['can', 'cat', 'duck', 'glue', 'holepuncher', 'iron', 'phone'] # eggbox
+        #add_objs = ['can', 'cat', 'duck', 'glue', 'holepuncher', 'iron', 'phone'] # eggbox
+        add_objs = []
     elif objname == 'benchvise':
         add_objs = ['ape', 'can', 'cat', 'driller', 'duck', 'glue', 'holepuncher']
     elif objname == 'cam':
         add_objs = ['ape', 'benchvise', 'can', 'cat', 'driller', 'duck', 'holepuncher']
     elif objname == 'can':
         add_objs = ['ape', 'benchvise', 'cat', 'driller', 'duck', 'eggbox', 'holepuncher']
+    elif objname == 'car':
+        add_objs = []
     elif objname == 'cat':
         add_objs = ['ape', 'can', 'duck', 'glue', 'holepuncher', 'eggbox', 'phone']
     elif objname == 'driller':
@@ -393,7 +396,7 @@ def augment_objects(imgpath, objname, add_objs, shape, jitter, hue, saturation, 
         successful = False
         while not successful:
 
-            objpath = '../LINEMOD/' + obj + '/train.txt'
+            objpath = '/media/justin_zheng/OS/Data/singleshotpose/LINEMOD/' + obj + '/train.txt'
             with open(objpath, 'r') as objfile:
                 objlines = objfile.readlines()
             rand_index = random.randint(0, len(objlines) - 1)

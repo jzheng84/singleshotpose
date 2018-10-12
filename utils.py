@@ -30,9 +30,17 @@ def calcAngularDistance(gt_rot, pr_rot):
     return np.rad2deg(np.arccos((trace-1.0)/2.0))
 
 def get_camera_intrinsic():
+    # TODO: Change to autorally intrinsics. Should load from param file.
     K = np.zeros((3, 3), dtype='float64')
-    K[0, 0], K[0, 2] = 572.4114, 325.2611
-    K[1, 1], K[1, 2] = 573.5704, 242.0489
+    #K[0, 0], K[0, 2] = 572.4114, 325.2611
+    #K[1, 1], K[1, 2] = 573.5704, 242.0489
+    #K[2, 2] = 1.
+
+    # Alpha
+    #K[0, 0], K[0, 2] = 814.5068358423324, 641.3206511250478
+    #K[1, 1], K[1, 2] = 818.5252047479286, 503.98399653885133
+    K[0, 0], K[0, 2] = 852.0367654236857, 626.9338016782257
+    K[1, 1], K[1, 2] = 852.0736515102927, 500.2665457442116
     K[2, 2] = 1.
     return K
 

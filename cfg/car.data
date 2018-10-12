@@ -1,0 +1,7 @@
+train = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/car/train.txt
+valid  = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/car/test.txt
+corners = /media/justin_zheng/OS/Data/singleshotpose/LINEMOD/car/corners.npy
+mesh = none
+backup = /media/justin_zheng/OS/Data/singleshotpose/backup
+name = car
+diam = 1.12679

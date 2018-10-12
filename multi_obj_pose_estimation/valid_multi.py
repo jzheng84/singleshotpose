@@ -1,4 +1,5 @@
 import os
+import pdb
 os.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 from torch.autograd import Variable
@@ -167,16 +168,22 @@ if __name__ == '__main__' and __package__ is None:
         cfgfile = sys.argv[1]
         weightfile = sys.argv[2]
         datacfg = 'cfg/ape_occlusion.data'
+        print('Validating ape.')
         valid(datacfg, cfgfile, weightfile, conf_th)
         datacfg = 'cfg/can_occlusion.data'
+        print('Validating can.')
         valid(datacfg, cfgfile, weightfile, conf_th)
         datacfg = 'cfg/cat_occlusion.data'
+        print('Validating cat.')
         valid(datacfg, cfgfile, weightfile, conf_th)
         datacfg = 'cfg/duck_occlusion.data'
+        print('Validating duck.')
         valid(datacfg, cfgfile, weightfile, conf_th)
         datacfg = 'cfg/glue_occlusion.data'
+        print('Validating glue.')
         valid(datacfg, cfgfile, weightfile, conf_th)
         datacfg = 'cfg/holepuncher_occlusion.data'
+        print('Validating holepuncher.')
         valid(datacfg, cfgfile, weightfile, conf_th)
     else:
         print('Usage:')
