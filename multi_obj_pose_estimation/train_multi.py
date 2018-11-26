@@ -350,11 +350,11 @@ if __name__ == "__main__":
     bg_file_names = get_all_files('/media/justin_zheng/OS/Data/singleshotpose/VOCdevkit/VOC2012/JPEGImages')
 
     # Train parameters
-    max_epochs    = 700 # max_batches*batch_size/nsamples+1
+    max_epochs    = 25 # max_batches*batch_size/nsamples+1
     use_cuda      = True
     seed          = int(time.time())
     eps           = 1e-5
-    save_interval = 10 # epoches
+    save_interval = 1 # epoches
     dot_interval  = 70 # batches
     best_acc       = -1 
 
@@ -425,7 +425,7 @@ if __name__ == "__main__":
             # TRAIN
             niter = train(epoch)
             # TEST and SAVE
-            if (epoch % 1 == 0) and (epoch is not 0): 
+            if (epoch % save_interval == 0): 
                 test(niter)
                 logging('save training stats to %s/costs.npz' % (backupdir))
                 np.savez(os.path.join(backupdir, "costs.npz"),
@@ -437,6 +437,6 @@ if __name__ == "__main__":
                 #if (np.mean(testing_accuracies[-5:]) > best_acc ):
                 best_acc = np.mean(testing_accuracies[-5:])
                 logging('best model so far!')
-                logging('save weights to %s/model.weights' % (backupdir))
-                model.module.save_weights('%s/model.weights' % (backupdir))
+                logging('save weights to %s/model_%d.weights' % (backupdir, epoch))
+                model.module.save_weights('%s/model_%d.weights' % (backupdir, epoch))
         shutil.copy2('%s/model.weights' % (backupdir), '%s/model_backup.weights' % (backupdir))

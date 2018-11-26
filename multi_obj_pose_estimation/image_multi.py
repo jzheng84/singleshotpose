@@ -1,29 +1,27 @@
 #!/usr/bin/python
 # encoding: utf-8
+import cv2
 import random
 import os
+import pdb  
 from PIL import Image, ImageChops, ImageMath
 import numpy as np
 
 def load_data_detection_backup(imgpath, shape, jitter, hue, saturation, exposure, bgpath):
     labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-    #maskpath = imgpath.replace('JPEGImages', 'mask').replace('/00', '/').replace('.jpg', '.png')
 
     ## data augmentation
     img = Image.open(imgpath).convert('RGB')
-    #mask = Image.open(maskpath).convert('RGB')
-    bg = Image.open(bgpath).convert('RGB')
     
-    #img = change_background(img, mask, bg)
     img,flip,dx,dy,sx,sy = data_augmentation(img, shape, jitter, hue, saturation, exposure)
     label = fill_truth_detection(labpath, img.width, img.height, flip, dx, dy, 1./sx, 1./sy)
+
     return img,label
 
 def get_add_objs(objname):
     # Decide how many additional objects you will augment and what will be the other types of objects
     if objname == 'ape':
-        #add_objs = ['can', 'cat', 'duck', 'glue', 'holepuncher', 'iron', 'phone'] # eggbox
-        add_objs = []
+        add_objs = ['can', 'cat', 'duck', 'glue', 'holepuncher', 'iron', 'phone'] # eggbox
     elif objname == 'benchvise':
         add_objs = ['ape', 'can', 'cat', 'driller', 'duck', 'glue', 'holepuncher']
     elif objname == 'cam':
